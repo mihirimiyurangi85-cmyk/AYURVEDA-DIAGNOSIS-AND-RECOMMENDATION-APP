@@ -203,7 +203,7 @@ function App() {
     setAuthLoading(true);
     setAuthNotice('');
     try {
-      const response = await axios.post('http://localhost:5000/api/login', { email, password });
+      const response = await axios.post('[https://ayurveda-backend.onrender.com](https://ayurveda-backend.onrender.com)', { email, password });
       if (response.data.user?.name) setName(response.data.user.name);
       setAuthNotice(response.data.message || 'Welcome back to AyurGuard.');
       setTimeout(() => setView('dashboard'), 1200);
