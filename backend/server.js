@@ -53,16 +53,23 @@ if (!fs.existsSync('./uploads/public/images')){ fs.mkdirSync('./uploads/public/i
 // 🗄️ DATABASE CONNECTION & AUTO-TABLE CREATION
 // ==========================================
 let dbConnected = false;
-const db = mysql.createConnection({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'ayurguard_db',
+const mysql = require('mysql2');
+
+const db = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   port: process.env.DB_PORT || 27273,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
   ssl: {
     rejectUnauthorized: false
   }
 });
+
+module.exports = db;
 
 db.connect((err) => {
     if (!err) {
