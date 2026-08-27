@@ -329,7 +329,7 @@ function App() {
       formData.append('question', queryText);
       formData.append('doctor', activeDoctor.name);
       if (consultationPhoto) formData.append('photo', consultationPhoto);
-      await axios.post('http://localhost:5000/api/doctor-consultation', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await axios.post('[https://ayurveda-diagnosis-and-recommendati.vercel.app](https://ayurveda-diagnosis-and-recommendati.vercel.app)', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       setChatMessages(prev => [...prev, { id: Date.now() + 1, sender: 'system', text: 'Message delivered to the doctor. A registered practitioner will reply in this consultation channel.' }]);
       setConsultationPhoto(null);
     } catch (error) {
