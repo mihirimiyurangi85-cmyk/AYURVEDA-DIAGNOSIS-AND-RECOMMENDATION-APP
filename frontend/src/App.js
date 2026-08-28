@@ -265,7 +265,7 @@ function App() {
     setAuthLoading(true);
     setAuthNotice('');
     try {
-      const response = await axios.post('http://localhost:5000/api/register', { name, email, password, role });
+      const response = await axios.post('https://ayurveda-backend.onrender.com/api/register', { name, email, password, role });
       setAuthNotice(response.data.message || 'Your AyurGuard account is ready.');
       setView('login'); 
     } catch (error) {
@@ -401,7 +401,7 @@ function App() {
     formData.append('preferredDate', consultationForm.date);
     if (consultationPhoto) formData.append('photo', consultationPhoto);
     try {
-      await axios.post('http://localhost:5000/api/doctor-consultation', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await axios.post('https://ayurveda-backend.onrender.com/api/doctor-consultation', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
     } catch (error) {
       console.warn('Consultation request queued locally:', error.message);
     }
@@ -579,7 +579,7 @@ function App() {
             {recommendation.remedySi && (
               <div style={{ marginTop: '20px', padding: '15px', background: '#f9f9f9', borderRadius: '10px', border: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
                 <img 
-                  src={`http://localhost:5000/images/${
+                  src={`https://ayurveda-backend.onrender.com/images/${
                     recommendation.remedySi.includes('කොත්තමල්ලි') ? 'coriander.jpg' :
                     recommendation.remedySi.includes('පාවට්ටා') ? 'pavatta.jpg' :
                     recommendation.remedySi.includes('ඉඟුරු') ? 'ginger.jpg' : 
@@ -587,7 +587,7 @@ function App() {
                   }`} 
                   alt="Recommended Herb" 
                   style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-                  onError={(e) => { e.target.src = 'http://localhost:5000/images/default_herb.png'; }}
+                  onError={(e) => { e.target.src = 'https://ayurveda-backend.onrender.com/images/default_herb.png'; }}
                 />
                 <p style={{ fontSize: '13px', color: '#7f8c8d', margin: '0' }}>නිවැරදි ඖෂධීය ශාකය හඳුනාගන්න</p>
               </div>
@@ -1328,7 +1328,7 @@ function App() {
 // ==========================================
 function HerbsGallery() {
   const [activeModalImage, setActiveModalImage] = useState(null);
-  const BACKEND_URL = "http://localhost:5000/images";
+  const BACKEND_URL = "https://ayurveda-backend.onrender.com/images";
 
   const herbData = [
     { img: `coriander.jpg`, title: "Coriander (කොත්තමල්ලි)", desc: "Relieves body aches, cold, fever, and boosts daily immunity." },
