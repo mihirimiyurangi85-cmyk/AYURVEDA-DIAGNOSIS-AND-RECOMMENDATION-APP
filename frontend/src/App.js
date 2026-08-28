@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Mic, Image, Heart, Shield, Lock, User, Mail, LogOut, FileText, AlertTriangle, ArrowLeft, Database, Phone, Upload, ShoppingCart, MessageSquare, Send, Bot, Search, Leaf, LoaderCircle, CheckCircle2, KeyRound, Sun, Moon, ClipboardList, Stethoscope, Paperclip } from 'lucide-react';
+import { 
+  Mic, Image, Heart, Shield, Lock, User, Mail, LogOut, FileText, 
+  AlertTriangle, ArrowLeft, Database, Phone, Upload, ShoppingCart, 
+  MessageSquare, Send, Bot, Search, Leaf, LoaderCircle, CheckCircle2, 
+  KeyRound, Sun, Moon, ClipboardList, Stethoscope, Paperclip 
+} from 'lucide-react';
 import './App.css';
 
 // ==========================================
-// 
+// 🌿 MOCK DATA & CONFIGURATION
 // ==========================================
 const initialDoctors = Array.from({ length: 100 }, (_, i) => {
   const specialties = [
@@ -132,7 +137,50 @@ function CartDrawer({ cart, setCart, open, onClose, onCheckout }) {
   const total = cart.reduce((sum, item) => sum + parseFloat(item.price.replace(/[^\d.]/g, '')) * (item.quantity || 1), 0);
   const changeQuantity = (id, amount) => setCart((items) => items.map((item) => item.id === id ? { ...item, quantity: Math.max(1, (item.quantity || 1) + amount) } : item));
   if (!open) return null;
-  return <div className="cart-overlay" role="dialog" aria-modal="true" aria-label="Shopping cart"><button className="cart-scrim" onClick={onClose} aria-label="Close cart" /><aside className="cart-drawer"><div className="cart-drawer-header"><div><span className="dashboard-eyebrow">YOUR AYURMART</span><h2>Your basket <small>{cart.length} items</small></h2></div><button onClick={onClose} aria-label="Close cart">×</button></div>{cart.length === 0 ? <div className="empty-cart"><ShoppingCart size={30} /><p>Your basket is waiting for a little botanical goodness.</p></div> : <><div className="drawer-items">{cart.map((item) => <div className="drawer-item" key={item.id || item.name}><span className="drawer-item-art">{item.icon || '🌿'}</span><div><strong>{item.name}</strong><small>{item.price}</small><div className="quantity-control"><button onClick={() => changeQuantity(item.id, -1)} aria-label={`Decrease ${item.name}`}>−</button><span>{item.quantity || 1}</span><button onClick={() => changeQuantity(item.id, 1)} aria-label={`Increase ${item.name}`}>+</button></div></div></div>)}</div><div className="drawer-total"><span>Total</span><strong>LKR {total.toFixed(2)}</strong></div><button className="drawer-checkout" onClick={onCheckout}>Review checkout <ArrowLeft size={16} /></button></>}</aside></div>;
+  return (
+    <div className="cart-overlay" role="dialog" aria-modal="true" aria-label="Shopping cart">
+      <button className="cart-scrim" onClick={onClose} aria-label="Close cart" />
+      <aside className="cart-drawer">
+        <div className="cart-drawer-header">
+          <div>
+            <span className="dashboard-eyebrow">YOUR AYURMART</span>
+            <h2>Your basket <small>{cart.length} items</small></h2>
+          </div>
+          <button onClick={onClose} aria-label="Close cart">×</button>
+        </div>
+        {cart.length === 0 ? (
+          <div className="empty-cart">
+            <ShoppingCart size={30} />
+            <p>Your basket is waiting for a little botanical goodness.</p>
+          </div>
+        ) : (
+          <>
+            <div className="drawer-items">
+              {cart.map((item) => (
+                <div className="drawer-item" key={item.id || item.name}>
+                  <span className="drawer-item-art">{item.icon || '🌿'}</span>
+                  <div>
+                    <strong>{item.name}</strong>
+                    <small>{item.price}</small>
+                    <div className="quantity-control">
+                      <button onClick={() => changeQuantity(item.id, -1)} aria-label={`Decrease ${item.name}`}>−</button>
+                      <span>{item.quantity || 1}</span>
+                      <button onClick={() => changeQuantity(item.id, 1)} aria-label={`Increase ${item.name}`}>+</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="drawer-total">
+              <span>Total</span>
+              <strong>LKR {total.toFixed(2)}</strong>
+            </div>
+            <button className="drawer-checkout" onClick={onCheckout}>Review checkout <ArrowLeft size={16} /></button>
+          </>
+        )}
+      </aside>
+    </div>
+  );
 }
 
 function App() {
@@ -167,7 +215,6 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('All');
 
-  
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [bookingDoctor, setBookingDoctor] = useState(null);
@@ -181,7 +228,6 @@ function App() {
   const [paymentMethod, setPaymentMethod] = useState('Cash on Delivery');
   const [orderConfirmation, setOrderConfirmation] = useState(null);
 
-  
   const [activeDoctor, setActiveDoctor] = useState(initialDoctors[0]); 
   const [typedMessage, setTypedMessage] = useState('');
   const [consultationPhoto, setConsultationPhoto] = useState(null);
@@ -203,7 +249,7 @@ function App() {
     setAuthLoading(true);
     setAuthNotice('');
     try {
-      const response = await axios.post('[https://ayurveda-backend.onrender.com](https://ayurveda-backend.onrender.com)', { email, password });
+      const response = await axios.post('https://ayurveda-backend.onrender.com/api/login', { email, password });
       if (response.data.user?.name) setName(response.data.user.name);
       setAuthNotice(response.data.message || 'Welcome back to AyurGuard.');
       setTimeout(() => setView('dashboard'), 1200);
@@ -238,7 +284,6 @@ function App() {
     setAuthNotice(`A password reset link will be sent to ${email || 'your email address'}.`);
   };
 
-
   const updateWellness = (metric, amount, maximum) => {
     setWellness((current) => ({ ...current, [metric]: Math.max(0, Math.min(maximum, current[metric] + amount)) }));
   };
@@ -257,11 +302,17 @@ function App() {
   };
 
   const toggleSymptom = (symptom) => setSelectedSymptoms((current) => current.includes(symptom) ? current.filter((item) => item !== symptom) : [...current, symptom]);
+  
   const completeQuestionnaire = () => {
     const severe = symptomAnswers.severity === 'Severe';
     const prolonged = symptomAnswers.duration === 'More than 3 days';
-    setQuestionnaireResult({ urgent: severe, message: severe || prolonged ? 'Please arrange a consultation with a qualified practitioner soon. Seek urgent care immediately if symptoms are severe, rapidly worsening, or affect breathing or consciousness.' : 'Your selected symptoms appear suitable for a routine practitioner discussion. Track changes and arrange a consultation if they persist.', symptoms: selectedSymptoms });
+    setQuestionnaireResult({ 
+      urgent: severe, 
+      message: severe || prolonged ? 'Please arrange a consultation with a qualified practitioner soon. Seek urgent care immediately if symptoms are severe, rapidly worsening, or affect breathing or consciousness.' : 'Your selected symptoms appear suitable for a routine practitioner discussion. Track changes and arrange a consultation if they persist.', 
+      symptoms: selectedSymptoms 
+    });
   };
+
   const choosePrakritiAnswer = (answer) => {
     const nextAnswers = [...prakritiAnswers];
     nextAnswers[prakritiStep] = answer;
@@ -278,7 +329,7 @@ function App() {
   const handleAnalyze = () => setView('questionnaire');
   const toggleRecording = () => setIsRecording((recording) => !recording);
 
-  // 🔍 දොස්තරලා Filter කරන Logic එක
+  // Doctors Filter Logic
   const filteredDoctors = initialDoctors.filter(doc => {
     const matchesSearch = 
       doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -292,7 +343,6 @@ function App() {
 
   const uniqueSpecialties = ['All', ...new Set(initialDoctors.map(d => d.specialty))];
 
- 
   const addToCart = (product) => {
     setCart((items) => {
       const existing = items.find((item) => item.id === product.id);
@@ -309,7 +359,6 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
- 
   const handleSendMessage = async (e) => {
     e.preventDefault();
     const queryText = typedMessage.trim();
@@ -329,7 +378,7 @@ function App() {
       formData.append('question', queryText);
       formData.append('doctor', activeDoctor.name);
       if (consultationPhoto) formData.append('photo', consultationPhoto);
-      await axios.post('[https://ayurveda-diagnosis-and-recommendati.vercel.app](https://ayurveda-diagnosis-and-recommendati.vercel.app)', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await axios.post('https://ayurveda-diagnosis-and-recommendati.vercel.app/api/chat', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       setChatMessages(prev => [...prev, { id: Date.now() + 1, sender: 'system', text: 'Message delivered to the doctor. A registered practitioner will reply in this consultation channel.' }]);
       setConsultationPhoto(null);
     } catch (error) {
@@ -354,7 +403,6 @@ function App() {
     try {
       await axios.post('http://localhost:5000/api/doctor-consultation', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
     } catch (error) {
-      // Keep the request visible locally when the optional backend is offline.
       console.warn('Consultation request queued locally:', error.message);
     }
     const submittedAt = new Date().toLocaleDateString();
@@ -440,10 +488,46 @@ function App() {
     );
   }
 
-  // --- RECOMMENDATION DETAILS VIEW ---
+  // --- PROFILE VIEW ---
   if (view === 'profile') {
     return (
-      <div className="app-container"><main className="profile-view"><button className="text-link" onClick={() => setView('dashboard')}><ArrowLeft size={14} /> Back to dashboard</button><span className="dashboard-eyebrow">YOUR PROFILE</span><div className="profile-heading"><span className="profile-avatar">{(name || 'A').charAt(0).toUpperCase()}</span><div><h1>{name || 'AyurGuard member'}</h1><p>{email || 'Your account details and wellness preferences'}</p></div></div><div className="profile-tabs">{[['overview', 'Overview'], ['activity', 'Activity'], ['settings', 'Settings']].map(([tab, label]) => <button key={tab} className={profileTab === tab ? 'active' : ''} onClick={() => setProfileTab(tab)}>{label}</button>)}</div>{profileTab === 'overview' && <><div className="profile-prakriti"><span>Your Prakriti profile</span><strong>Vata Dosha</strong><small>Air + space · balanced</small></div><div className="vitals-grid"><div><small>Weight</small><strong>62 kg</strong></div><div><small>Height</small><strong>168 cm</strong></div><div><small>Daily progress</small><strong>{Math.round((wellness.water / 8 + wellness.meditation / 20 + wellness.sleep / 8) / 3 * 100)}%</strong></div></div></>}{profileTab === 'activity' && <div className="activity-list"><h2>Appointments</h2>{bookedAppointments.length ? bookedAppointments.map((appointment, index) => <p key={index}><strong>{appointment.doctor}</strong><span>{appointment.date} · {appointment.time}</span></p>) : <p className="activity-empty">No appointments booked yet.</p>}<h2>Past product orders</h2><p className="activity-empty">Your completed orders will appear here.</p></div>}{profileTab === 'settings' && <div className="settings-list"><button onClick={() => setBookingNotice('Password change instructions sent to your email.')}><KeyRound size={17} /> Change password <ArrowLeft size={15} /></button><button onClick={() => setView('login')}><LogOut size={17} /> Log out <ArrowLeft size={15} /></button></div>}</main><nav className="bottom-nav" aria-label="Main navigation"><button onClick={() => setView('dashboard')}><span>⌂</span>Dashboard</button><button onClick={() => setView('shop')}><ShoppingCart size={18} />Shop</button><button onClick={() => setView('doctors')}><User size={18} />Appointments</button><button className="active" onClick={() => setView('profile')}><User size={18} />Profile</button></nav></div>
+      <div className="app-container">
+        <main className="profile-view">
+          <button className="text-link" onClick={() => setView('dashboard')}><ArrowLeft size={14} /> Back to dashboard</button>
+          <span className="dashboard-eyebrow">YOUR PROFILE</span>
+          <div className="profile-heading">
+            <span className="profile-avatar">{(name || 'A').charAt(0).toUpperCase()}</span>
+            <div><h1>{name || 'AyurGuard member'}</h1><p>{email || 'Your account details and wellness preferences'}</p></div>
+          </div>
+          <div className="profile-tabs">{[['overview', 'Overview'], ['activity', 'Activity'], ['settings', 'Settings']].map(([tab, label]) => <button key={tab} className={profileTab === tab ? 'active' : ''} onClick={() => setProfileTab(tab)}>{label}</button>)}</div>
+          {profileTab === 'overview' && (
+            <>
+              <div className="profile-prakriti"><span>Your Prakriti profile</span><strong>Vata Dosha</strong><small>Air + space · balanced</small></div>
+              <div className="vitals-grid"><div><small>Weight</small><strong>62 kg</strong></div><div><small>Height</small><strong>168 cm</strong></div><div><small>Daily progress</small><strong>{Math.round((wellness.water / 8 + wellness.meditation / 20 + wellness.sleep / 8) / 3 * 100)}%</strong></div></div>
+            </>
+          )}
+          {profileTab === 'activity' && (
+            <div className="activity-list">
+              <h2>Appointments</h2>
+              {bookedAppointments.length ? bookedAppointments.map((appointment, index) => <p key={index}><strong>{appointment.doctor}</strong><span>{appointment.date} · {appointment.time}</span></p>) : <p className="activity-empty">No appointments booked yet.</p>}
+              <h2>Past product orders</h2>
+              <p className="activity-empty">Your completed orders will appear here.</p>
+            </div>
+          )}
+          {profileTab === 'settings' && (
+            <div className="settings-list">
+              <button onClick={() => setBookingNotice('Password change instructions sent to your email.')}><KeyRound size={17} /> Change password <ArrowLeft size={15} /></button>
+              <button onClick={() => setView('login')}><LogOut size={17} /> Log out <ArrowLeft size={15} /></button>
+            </div>
+          )}
+        </main>
+        <nav className="bottom-nav" aria-label="Main navigation">
+          <button onClick={() => setView('dashboard')}><span>⌂</span>Dashboard</button>
+          <button onClick={() => setView('shop')}><ShoppingCart size={18} />Shop</button>
+          <button onClick={() => setView('doctors')}><User size={18} />Appointments</button>
+          <button className="active" onClick={() => setView('profile')}><User size={18} />Profile</button>
+        </nav>
+      </div>
     );
   }
 
@@ -515,14 +599,45 @@ function App() {
             <strong>Disclaimer:</strong> This is an AI-generated guidance report based on traditional Ayurveda.
           </div>
         </main>
-        {bookingDoctor && <div className="calendar-overlay" role="dialog" aria-modal="true" aria-label="Book an appointment"><button className="cart-scrim" onClick={() => setBookingDoctor(null)} aria-label="Close booking calendar" /><div className="calendar-modal"><button className="modal-close" onClick={() => setBookingDoctor(null)} aria-label="Close">×</button><span className="dashboard-eyebrow">BOOK A VISIT</span><h2>Meet with {bookingDoctor.name}</h2><p>{bookingDoctor.specialty}</p><label>Select a date<input type="date" min={new Date().toISOString().split('T')[0]} value={bookingDate} onChange={(event) => setBookingDate(event.target.value)} /></label><span className="slot-label">Available times</span><div className="time-slots">{['09:00 AM', '10:00 AM', '02:00 PM', '04:30 PM'].map((time) => <button key={time} className={bookingTime === time ? 'selected' : ''} onClick={() => setBookingTime(time)}>{time}</button>)}</div><button className="confirm-booking" disabled={!bookingDate} onClick={confirmAppointment}>Confirm appointment <ArrowLeft size={16} /></button></div></div>}
-        {consultationDoctor && <div className="calendar-overlay" role="dialog" aria-modal="true" aria-label="Request consultation"><button className="cart-scrim" onClick={() => setConsultationDoctor(null)} aria-label="Close consultation form" /><form className="calendar-modal consultation-modal" onSubmit={submitConsultationRequest}><button type="button" className="modal-close" onClick={() => setConsultationDoctor(null)} aria-label="Close">×</button><span className="dashboard-eyebrow">REQUEST CARE</span><h2>{consultationDoctor.name}</h2><p>{consultationDoctor.specialty}</p><label>Describe your symptoms<textarea value={consultationForm.symptoms} onChange={(event) => setConsultationForm({ ...consultationForm, symptoms: event.target.value })} rows="4" placeholder="Tell the practitioner what you are experiencing" required /></label><label>Preferred date<input type="date" min={new Date().toISOString().split('T')[0]} value={consultationForm.date} onChange={(event) => setConsultationForm({ ...consultationForm, date: event.target.value })} required /></label><label className="record-upload"><Paperclip size={16} /> Attach image or medical record<input type="file" accept="image/*,.pdf,.doc,.docx" onChange={(event) => setConsultationPhoto(event.target.files[0] || null)} /></label>{consultationPhoto && <small className="attachment-name">Attached: {consultationPhoto.name}</small>}<button className="confirm-booking" type="submit">Send consultation request <Send size={16} /></button></form></div>}
+
+        {bookingDoctor && (
+          <div className="calendar-overlay" role="dialog" aria-modal="true" aria-label="Book an appointment">
+            <button className="cart-scrim" onClick={() => setBookingDoctor(null)} aria-label="Close booking calendar" />
+            <div className="calendar-modal">
+              <button className="modal-close" onClick={() => setBookingDoctor(null)} aria-label="Close">×</button>
+              <span className="dashboard-eyebrow">BOOK A VISIT</span>
+              <h2>Meet with {bookingDoctor.name}</h2>
+              <p>{bookingDoctor.specialty}</p>
+              <label>Select a date<input type="date" min={new Date().toISOString().split('T')[0]} value={bookingDate} onChange={(event) => setBookingDate(event.target.value)} /></label>
+              <span className="slot-label">Available times</span>
+              <div className="time-slots">{['09:00 AM', '10:00 AM', '02:00 PM', '04:30 PM'].map((time) => <button key={time} className={bookingTime === time ? 'selected' : ''} onClick={() => setBookingTime(time)}>{time}</button>)}</div>
+              <button className="confirm-booking" disabled={!bookingDate} onClick={confirmAppointment}>Confirm appointment <ArrowLeft size={16} /></button>
+            </div>
+          </div>
+        )}
+
+        {consultationDoctor && (
+          <div className="calendar-overlay" role="dialog" aria-modal="true" aria-label="Request consultation">
+            <button className="cart-scrim" onClick={() => setConsultationDoctor(null)} aria-label="Close consultation form" />
+            <form className="calendar-modal consultation-modal" onSubmit={submitConsultationRequest}>
+              <button type="button" className="modal-close" onClick={() => setConsultationDoctor(null)} aria-label="Close">×</button>
+              <span className="dashboard-eyebrow">REQUEST CARE</span>
+              <h2>{consultationDoctor.name}</h2>
+              <p>{consultationDoctor.specialty}</p>
+              <label>Describe your symptoms<textarea value={consultationForm.symptoms} onChange={(event) => setConsultationForm({ ...consultationForm, symptoms: event.target.value })} rows="4" placeholder="Tell the practitioner what you are experiencing" required /></label>
+              <label>Preferred date<input type="date" min={new Date().toISOString().split('T')[0]} value={consultationForm.date} onChange={(event) => setConsultationForm({ ...consultationForm, date: event.target.value })} required /></label>
+              <label className="record-upload"><Paperclip size={16} /> Attach image or medical record<input type="file" accept="image/*,.pdf,.doc,.docx" onChange={(event) => setConsultationPhoto(event.target.files[0] || null)} /></label>
+              {consultationPhoto && <small className="attachment-name">Attached: {consultationPhoto.name}</small>}
+              <button className="confirm-booking" type="submit">Send consultation request <Send size={16} /></button>
+            </form>
+          </div>
+        )}
         <Footer />
       </div>
     );
   }
 
-  // 📷 --- HERBS GALLERY FULL PAGE VIEW ---
+  // --- HERBS GALLERY FULL PAGE VIEW ---
   if (view === 'upload-herbs') {
     return (
       <div className="app-container">
@@ -540,7 +655,7 @@ function App() {
     );
   }
 
-  // 🩺 --- DOCTORS SEARCH INTERFACE ---
+  // --- DOCTORS SEARCH INTERFACE ---
   if (view === 'doctors') {
     return (
       <div className="app-container">
@@ -601,7 +716,10 @@ function App() {
                     >
                       <ClipboardList size={14} /> Request Consultation
                     </button>
-                    <span className="doctor-contact-actions"><a href={`https://wa.me/${doc.phone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="doctor-contact-button"><MessageSquare size={14} /> WhatsApp</a><a href={`tel:${doc.phone.replace(/\D/g, '')}`} className="doctor-contact-button call-button"><Phone size={14} /> Call</a></span>
+                    <span className="doctor-contact-actions">
+                      <a href={`https://wa.me/${doc.phone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="doctor-contact-button"><MessageSquare size={14} /> WhatsApp</a>
+                      <a href={`tel:${doc.phone.replace(/\D/g, '')}`} className="doctor-contact-button call-button"><Phone size={14} /> Call</a>
+                    </span>
                     <button onClick={() => bookAppointment(doc)} style={{ background: '#b2763c', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}>
                       <CheckCircle2 size={14} /> Book Now
                     </button>
@@ -620,7 +738,7 @@ function App() {
     );
   }
 
-  // 🛒 --- CART & CHECKOUT INTERFACE ---
+  // --- CART & CHECKOUT INTERFACE ---
   if (view === 'cart-page') {
     const calculateTotal = () => {
       return cart.reduce((total, item) => {
@@ -646,41 +764,71 @@ function App() {
         </header>
 
         <main className="main-content" style={{ maxWidth: '800px', margin: '40px auto', padding: '0 20px' }}>
-          {orderConfirmation ? <div className="order-confirmation"><CheckCircle2 size={48} /><span className="dashboard-eyebrow">ORDER CONFIRMED</span><h2>Thank you for your purchase.</h2><p>Your order <strong>{orderConfirmation.orderNumber}</strong> is confirmed and will be delivered to {orderConfirmation.city}.</p><div className="confirmation-summary"><span>Total paid</span><strong>LKR {orderConfirmation.total.toFixed(2)}</strong><span>Payment</span><strong>{orderConfirmation.paymentMethod}</strong></div><button className="drawer-checkout" onClick={() => setView('shop')}>Continue shopping <ArrowLeft size={16} /></button></div> : <><h2 style={{ color: '#1b5e20', marginBottom: '20px', fontWeight: 'bold' }}>Review Your Order</h2>
-          
-          {cart.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', background: 'white', borderRadius: '12px', color: '#7f8c8d' }}>
-              Your cart is currently empty. Go back to shop and add some items!
+          {orderConfirmation ? (
+            <div className="order-confirmation">
+              <CheckCircle2 size={48} />
+              <span className="dashboard-eyebrow">ORDER CONFIRMED</span>
+              <h2>Thank you for your purchase.</h2>
+              <p>Your order <strong>{orderConfirmation.orderNumber}</strong> is confirmed and will be delivered to {orderConfirmation.city}.</p>
+              <div className="confirmation-summary">
+                <span>Total paid</span><strong>LKR {orderConfirmation.total.toFixed(2)}</strong>
+                <span>Payment</span><strong>{orderConfirmation.paymentMethod}</strong>
+              </div>
+              <button className="drawer-checkout" onClick={() => setView('shop')}>Continue shopping <ArrowLeft size={16} /></button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-                {cart.map((item, index) => (
-                  <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #eee' }}>
-                    <div>
-                      <h4 style={{ margin: 0, color: '#333' }}>{item.name}</h4>
-                      <p style={{ margin: 0, fontSize: '12px', color: '#7f8c8d' }}>{item.desc}</p>
-                    </div>
-                    <span style={{ fontWeight: 'bold', color: '#1b5e20' }}>{item.price}</span>
-                  </div>
-                ))}
-                
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', paddingTop: '15px', borderTop: '2px solid #2e7d32', fontSize: '18px', fontWeight: 'bold', color: '#1b5e20' }}>
-                  <span>Total Amount:</span>
-                  <span>LKR {calculateTotal().toFixed(2)}</span>
+            <>
+              <h2 style={{ color: '#1b5e20', marginBottom: '20px', fontWeight: 'bold' }}>Review Your Order</h2>
+              {cart.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px', background: 'white', borderRadius: '12px', color: '#7f8c8d' }}>
+                  Your cart is currently empty. Go back to shop and add some items!
                 </div>
-              </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  <div style={{ background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                    {cart.map((item, index) => (
+                      <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #eee' }}>
+                        <div>
+                          <h4 style={{ margin: 0, color: '#333' }}>{item.name}</h4>
+                          <p style={{ margin: 0, fontSize: '12px', color: '#7f8c8d' }}>{item.desc}</p>
+                        </div>
+                        <span style={{ fontWeight: 'bold', color: '#1b5e20' }}>{item.price}</span>
+                      </div>
+                    ))}
+                    
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', paddingTop: '15px', borderTop: '2px solid #2e7d32', fontSize: '18px', fontWeight: 'bold', color: '#1b5e20' }}>
+                      <span>Total Amount:</span>
+                      <span>LKR {calculateTotal().toFixed(2)}</span>
+                    </div>
+                  </div>
 
-              <form className="checkout-form" onSubmit={handleCheckout}><h3>Delivery details</h3><label>Full name<input value={deliveryDetails.fullName} onChange={(e) => setDeliveryDetails({ ...deliveryDetails, fullName: e.target.value })} required /></label><label>Delivery address<textarea value={deliveryDetails.address} onChange={(e) => setDeliveryDetails({ ...deliveryDetails, address: e.target.value })} rows="3" required /></label><label>City<input value={deliveryDetails.city} onChange={(e) => setDeliveryDetails({ ...deliveryDetails, city: e.target.value })} required /></label><h3>Payment method</h3><div className="payment-options">{['Cash on Delivery', 'Online Card Payment', 'Bank Transfer'].map((method) => <label key={method}><input type="radio" name="payment" value={method} checked={paymentMethod === method} onChange={(e) => setPaymentMethod(e.target.value)} />{method}</label>)}</div><button className="place-order-button" type="submit">Place Order / Confirm Purchase <CheckCircle2 size={17} /></button></form>
-            </div>
-          )}</>}
+                  <form className="checkout-form" onSubmit={handleCheckout}>
+                    <h3>Delivery details</h3>
+                    <label>Full name<input value={deliveryDetails.fullName} onChange={(e) => setDeliveryDetails({ ...deliveryDetails, fullName: e.target.value })} required /></label>
+                    <label>Delivery address<textarea value={deliveryDetails.address} onChange={(e) => setDeliveryDetails({ ...deliveryDetails, address: e.target.value })} rows="3" required /></label>
+                    <label>City<input value={deliveryDetails.city} onChange={(e) => setDeliveryDetails({ ...deliveryDetails, city: e.target.value })} required /></label>
+                    <h3>Payment method</h3>
+                    <div className="payment-options">
+                      {['Cash on Delivery', 'Online Card Payment', 'Bank Transfer'].map((method) => (
+                        <label key={method}>
+                          <input type="radio" name="payment" value={method} checked={paymentMethod === method} onChange={(e) => setPaymentMethod(e.target.value)} />
+                          {method}
+                        </label>
+                      ))}
+                    </div>
+                    <button className="place-order-button" type="submit">Place Order / Confirm Purchase <CheckCircle2 size={17} /></button>
+                  </form>
+                </div>
+              )}
+            </>
+          )}
         </main>
         <Footer />
       </div>
     );
   }
 
-  // 🛍️ --- AYURMART INTERFACE (WITH ALL 35 IMAGES FIXED) ---
+  // --- AYURMART INTERFACE ---
   if (view === 'shop') {
     const shopCategories = ['All products', 'Herbs & Remedies', 'Wellness & Oils', 'Food & Teas'];
     const shopViewCopy = {
@@ -694,6 +842,7 @@ function App() {
       setShopCategory(category);
       window.requestAnimationFrame(() => document.getElementById('shop-products')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
     };
+
     return (
       <div className="shop-page">
         <div className="shop-announcement">Complimentary delivery on AyurMart orders over LKR 3,000 <span>•</span> Sri Lankan botanicals, thoughtfully selected</div>
@@ -720,7 +869,6 @@ function App() {
 
           <div className="shop-product-grid">
             {[
-              // 1 - 10: Classic Herbs & Remedies
               { id: 101, name: "Premium Coriander Pack (කොත්තමල්ලි)", price: "LKR 350.00", desc: "Best for Fever, Cold, and Body Immunity.", img: "https://images.unsplash.com/photo-1608797178974-15b35a61d121?w=500&q=80" },
               { id: 102, name: "Organic Ginger Powder (ඉඟුරු)", price: "LKR 420.00", desc: "Improves Digestion and relieves Gastritis.", img: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=500&q=80" },
               { id: 103, name: "Pavatta Herbal Syrup (පාවට්ටා)", price: "LKR 580.00", desc: "Traditional blend for Cough & Respiratory health.", img: "https://images.unsplash.com/photo-1471193945509-9ad0617afabf?w=500&q=80" },
@@ -731,8 +879,6 @@ function App() {
               { id: 108, name: "Ashwagandha Vitality Capsules", price: "LKR 1,450.00", desc: "Boosts physical strength and cures mental anxiety.", img: "https://images.unsplash.com/photo-1611926653458-09294b3142bf?w=500&q=80" },
               { id: 109, name: "Amla Vitamin C Tonic (නෙල්ලි)", price: "LKR 520.00", desc: "Excellent for eye care, hair fall, and detox.", img: "https://images.unsplash.com/photo-1544816155-12df9643f363?w=500&q=80" },
               { id: 110, name: "Pure Herbal Hair Therapy Oil", price: "LKR 850.00", desc: "Controls hair loss and eliminates dandruff.", img: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=500&q=80" },
-
-              // 11 - 20: Specialized Therapy Packs
               { id: 111, name: "Stress Relief Facial Balm", price: "LKR 720.00", desc: "Relieves mental fatigue and enhances skin radiance.", img: "https://images.unsplash.com/photo-1556229010-aa3f7ff66b24?w=500&q=80" },
               { id: 112, name: "Tranquil Meditative Oil Blend", price: "LKR 980.00", desc: "Balancing internal Vata, Pitta, and Kapha doshas.", img: "https://images.unsplash.com/photo-1602928321679-560bb453f190?w=500&q=80" },
               { id: 113, name: "Immunity Culinary Spice Set", price: "LKR 1,100.00", desc: "Authentic spices designed for metabolic defense.", img: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=500&q=80" },
@@ -743,8 +889,6 @@ function App() {
               { id: 118, name: "Concentrated Essence Dropper", price: "LKR 1,200.00", desc: "Organic plant extracts for target aromatherapy.", img: "https://images.unsplash.com/photo-1617897903246-719242758050?w=500&q=80" },
               { id: 119, name: "Antioxidant Rich Dried Pods", price: "LKR 460.00", desc: "Natural forest seeds for detox tea brewing.", img: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&q=80" },
               { id: 120, name: "Metabolism Balancer Choorna", price: "LKR 550.00", desc: "Cleanses the digestive tract thoroughly.", img: "https://images.unsplash.com/photo-1511140889181-229f3d9d690a?w=500&q=80" },
-
-              // 21 - 35: Premium Wellness & Porridges
               { id: 121, name: "Arishta Brewing Raw Herbs", price: "LKR 1,800.00", desc: "Handpicked components for authentic elixir bases.", img: "https://images.unsplash.com/photo-1563172896-9024c0d4670a?w=500&q=80" },
               { id: 122, name: "Suwandel Organic Heirloom Rice", price: "LKR 450.00", desc: "Nutritional rice pack for low-glycemic diet plans.", img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&q=80" },
               { id: 123, name: "Certified Safe Botanical Bark", price: "LKR 670.00", desc: "Inspected medicinal wood for general health teas.", img: "https://images.unsplash.com/photo-1546190255-451a91afc548?w=500&q=80" },
@@ -772,9 +916,7 @@ function App() {
                   <p>{product.desc}</p>
                   <div className="shop-product-meta">
                     <span style={{ fontWeight: 'bold', color: '#2e7d32', fontSize: '14px' }}>{product.price}</span>
-                    <button className="shop-add-button"
-                      onClick={() => addToCart(product)}
-                    >
+                    <button className="shop-add-button" onClick={() => addToCart(product)}>
                       <ShoppingCart size={12} /> Add
                     </button>
                   </div>
@@ -797,7 +939,7 @@ function App() {
     );
   }
 
-  // 💬 --- CONSULTATION CHAT INTERFACE ---
+  // --- CONSULTATION CHAT INTERFACE ---
   if (view === 'chat') {
     return (
       <div className="app-container">
@@ -811,7 +953,6 @@ function App() {
         <main className="main-content" style={{ maxWidth: '800px', margin: '30px auto', padding: '0 20px' }}>
           <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.06)', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '550px', border: '1px solid #e0e0e0' }}>
             
-            {/* Chat Header */}
             <div style={{ background: '#1b5e20', color: 'white', padding: '15px 20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#a5d6a7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1b5e20', fontWeight: 'bold', fontSize: '16px' }}>
                 {activeDoctor.name.replace("Dr. ", "").replace("(Mrs) ", "").charAt(0)}
@@ -822,36 +963,26 @@ function App() {
               </div>
             </div>
 
-            {/* Chat Message Window */}
             <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: '#f9f9f9', display: 'flex', flexDirection: 'column', gap: '15px' }}>
               {chatMessages.map((msg) => (
-                <div 
-                  key={msg.id} 
-                  style={{ 
-                    display: 'flex', 
-                    justifyContent: msg.sender === 'patient' ? 'flex-end' : 'flex-start'
-                  }}
-                >
-                  <div 
-                    style={{ 
-                      maxWidth: '75%', 
-                      padding: '12px 16px', 
-                      borderRadius: msg.sender === 'patient' ? '16px 16px 2px 16px' : '16px 16px 16px 2px',
-                      background: msg.sender === 'patient' ? '#2e7d32' : 'white',
-                      color: msg.sender === 'patient' ? 'white' : '#333',
-                      boxShadow: '0 2px 5px rgba(0,0,0,0.04)',
-                      fontSize: '14px',
-                      lineHeight: '1.4',
-                      border: msg.sender === 'patient' ? 'none' : '1px solid #e0e0e0'
-                    }}
-                  >
+                <div key={msg.id} style={{ display: 'flex', justifyContent: msg.sender === 'patient' ? 'flex-end' : 'flex-start' }}>
+                  <div style={{ 
+                    maxWidth: '75%', 
+                    padding: '12px 16px', 
+                    borderRadius: msg.sender === 'patient' ? '16px 16px 2px 16px' : '16px 16px 16px 2px',
+                    background: msg.sender === 'patient' ? '#2e7d32' : 'white',
+                    color: msg.sender === 'patient' ? 'white' : '#333',
+                    boxShadow: '0 2px 5px rgba(0,0,0,0.04)',
+                    fontSize: '14px',
+                    lineHeight: '1.4',
+                    border: msg.sender === 'patient' ? 'none' : '1px solid #e0e0e0'
+                  }}>
                     {msg.text}
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Chat Input Bar */}
             <form onSubmit={handleSendMessage} style={{ padding: '15px', background: 'white', borderTop: '1px solid #eee', display: 'flex', gap: '10px' }}>
               <label className="consultation-attachment" aria-label="Attach a photo"><Paperclip size={18} /><input type="file" accept="image/*" onChange={(event) => setConsultationPhoto(event.target.files[0] || null)} /></label>
               <input 
@@ -861,10 +992,7 @@ function App() {
                 onChange={(e) => setTypedMessage(e.target.value)}
                 style={{ flex: 1, padding: '12px 15px', borderRadius: '25px', border: '1px solid #ccc', outline: 'none', fontSize: '14px' }}
               />
-              <button 
-                type="submit" 
-                style={{ background: '#2e7d32', color: 'white', border: 'none', width: '45px', height: '45px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}
-              >
+              <button type="submit" style={{ background: '#2e7d32', color: 'white', border: 'none', width: '45px', height: '45px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
                 <Send size={18} />
               </button>
             </form>
@@ -887,7 +1015,44 @@ function App() {
             <ArrowLeft size={16} /> Dashboard
           </button>
         </header>
-        <main className="safe-tool-page"><div className="safe-tool-card"><span className="dashboard-eyebrow">RULE-BASED CHECK-IN</span><h2>Let us understand what you are experiencing.</h2><p>Select any symptoms that apply. This tool does not diagnose or prescribe.</p>{questionnaireResult ? <div className={`safe-result ${questionnaireResult.urgent ? 'urgent' : ''}`}><strong>{questionnaireResult.urgent ? 'Please seek prompt clinical care' : 'Next step'}</strong><p>{questionnaireResult.message}</p><small>Selected: {questionnaireResult.symptoms.join(', ') || 'None selected'}</small><button onClick={() => { setQuestionnaireResult(null); setQuestionnaireStep(0); setSelectedSymptoms([]); setSymptomAnswers({}); }}>Start again</button></div> : questionnaireStep === 0 ? <><h3>Which symptoms are present?</h3><div className="choice-grid">{symptomOptions.map((symptom) => <button key={symptom} className={selectedSymptoms.includes(symptom) ? 'selected' : ''} onClick={() => toggleSymptom(symptom)}>{symptom}</button>)}</div><button className="safe-primary" disabled={!selectedSymptoms.length} onClick={() => setQuestionnaireStep(1)}>Continue <ArrowLeft size={16} /></button></> : <><div className="step-indicator">Question {questionnaireStep} of 2</div><h3>{symptomFollowUps[questionnaireStep - 1].label}</h3><div className="choice-grid">{symptomFollowUps[questionnaireStep - 1].options.map((option) => <button key={option} className={symptomAnswers[symptomFollowUps[questionnaireStep - 1].key] === option ? 'selected' : ''} onClick={() => { const key = symptomFollowUps[questionnaireStep - 1].key; setSymptomAnswers((answers) => ({ ...answers, [key]: option })); if (questionnaireStep === 2) completeQuestionnaire(); else setQuestionnaireStep(2); }}>{option}</button>)}</div></>}</div></main>
+        <main className="safe-tool-page">
+          <div className="safe-tool-card">
+            <span className="dashboard-eyebrow">RULE-BASED CHECK-IN</span>
+            <h2>Let us understand what you are experiencing.</h2>
+            <p>Select any symptoms that apply. This tool does not diagnose or prescribe.</p>
+            {questionnaireResult ? (
+              <div className={`safe-result ${questionnaireResult.urgent ? 'urgent' : ''}`}>
+                <strong>{questionnaireResult.urgent ? 'Please seek prompt clinical care' : 'Next step'}</strong>
+                <p>{questionnaireResult.message}</p>
+                <small>Selected: {questionnaireResult.symptoms.join(', ') || 'None selected'}</small>
+                <button onClick={() => { setQuestionnaireResult(null); setQuestionnaireStep(0); setSelectedSymptoms([]); setSymptomAnswers({}); }}>Start again</button>
+              </div>
+            ) : questionnaireStep === 0 ? (
+              <>
+                <h3>Which symptoms are present?</h3>
+                <div className="choice-grid">
+                  {symptomOptions.map((symptom) => <button key={symptom} className={selectedSymptoms.includes(symptom) ? 'selected' : ''} onClick={() => toggleSymptom(symptom)}>{symptom}</button>)}
+                </div>
+                <button className="safe-primary" disabled={!selectedSymptoms.length} onClick={() => setQuestionnaireStep(1)}>Continue <ArrowLeft size={16} /></button>
+              </>
+            ) : (
+              <>
+                <div className="step-indicator">Question {questionnaireStep} of 2</div>
+                <h3>{symptomFollowUps[questionnaireStep - 1].label}</h3>
+                <div className="choice-grid">
+                  {symptomFollowUps[questionnaireStep - 1].options.map((option) => (
+                    <button key={option} className={symptomAnswers[symptomFollowUps[questionnaireStep - 1].key] === option ? 'selected' : ''} onClick={() => {
+                      const key = symptomFollowUps[questionnaireStep - 1].key;
+                      setSymptomAnswers((answers) => ({ ...answers, [key]: option }));
+                      if (questionnaireStep === 2) completeQuestionnaire();
+                      else setQuestionnaireStep(2);
+                    }}>{option}</button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </main>
         <Footer />
       </div>
     );
@@ -895,10 +1060,47 @@ function App() {
 
   if (view === 'prakriti') {
     const resultEntries = prakritiResult ? Object.entries(prakritiResult) : [];
-    return <div className="app-container"><header className="navbar"><h1><Stethoscope size={22} /> Prakriti assessment</h1><button className="btn-back" onClick={() => setView('dashboard')}><ArrowLeft size={16} /> Dashboard</button></header><main className="safe-tool-page"><div className="safe-tool-card"><span className="dashboard-eyebrow">DOSHA ASSESSMENT</span><h2>Learn your natural constitution.</h2><p>Answer {prakritiQuestions.length} pattern-based questions about body, digestion, skin, energy, and sleep.</p>{prakritiResult ? <div className="dosha-result"><h3>Your profile</h3>{resultEntries.map(([dosha, percentage]) => <div className="dosha-row" key={dosha}><span>{dosha}</span><div className="progress-track"><span style={{ width: `${percentage}%` }} /></div><strong>{percentage}%</strong></div>)}<p>Pathya: choose regular meals, seasonal whole foods, hydration, and a consistent sleep routine. A qualified practitioner can personalize Pathya-Apathya guidance.</p><button className="safe-primary" onClick={() => { setPrakritiResult(null); setPrakritiStep(0); setPrakritiAnswers([]); }}>Retake assessment</button></div> : <><div className="step-indicator">Question {prakritiStep + 1} of {prakritiQuestions.length}</div><h3>{prakritiQuestions[prakritiStep].text}</h3><div className="choice-grid">{prakritiQuestions[prakritiStep].dosha.map((option, index) => <button key={option} onClick={() => choosePrakritiAnswer(['Vata', 'Pitta', 'Kapha'][index])}>{option}</button>)}</div></>}</div></main><Footer /></div>;
+    return (
+      <div className="app-container">
+        <header className="navbar">
+          <h1><Stethoscope size={22} /> Prakriti assessment</h1>
+          <button className="btn-back" onClick={() => setView('dashboard')}><ArrowLeft size={16} /> Dashboard</button>
+        </header>
+        <main className="safe-tool-page">
+          <div className="safe-tool-card">
+            <span className="dashboard-eyebrow">DOSHA ASSESSMENT</span>
+            <h2>Learn your natural constitution.</h2>
+            <p>Answer {prakritiQuestions.length} pattern-based questions about body, digestion, skin, energy, and sleep.</p>
+            {prakritiResult ? (
+              <div className="dosha-result">
+                <h3>Your profile</h3>
+                {resultEntries.map(([dosha, percentage]) => (
+                  <div className="dosha-row" key={dosha}>
+                    <span>{dosha}</span>
+                    <div className="progress-track"><span style={{ width: `${percentage}%` }} /></div>
+                    <strong>{percentage}%</strong>
+                  </div>
+                ))}
+                <p>Pathya: choose regular meals, seasonal whole foods, hydration, and a consistent sleep routine. A qualified practitioner can personalize Pathya-Apathya guidance.</p>
+                <button className="safe-primary" onClick={() => { setPrakritiResult(null); setPrakritiStep(0); setPrakritiAnswers([]); }}>Retake assessment</button>
+              </div>
+            ) : (
+              <>
+                <div className="step-indicator">Question {prakritiStep + 1} of {prakritiQuestions.length}</div>
+                <h3>{prakritiQuestions[prakritiStep].text}</h3>
+                <div className="choice-grid">
+                  {prakritiQuestions[prakritiStep].dosha.map((option, index) => <button key={option} onClick={() => choosePrakritiAnswer(['Vata', 'Pitta', 'Kapha'][index])}>{option}</button>)}
+                </div>
+              </>
+            )}
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
-  // 🏡 --- PATIENT MAIN DASHBOARD INTERFACE ---
+  // --- PATIENT MAIN DASHBOARD INTERFACE ---
   const dashboardProducts = [
     { id: 201, name: 'Ceylon Calm Tea', type: 'Herbal infusion', price: 'LKR 1,250', icon: '🍵' },
     { id: 202, name: 'Sandalwood Body Oil', type: 'Cooling massage oil', price: 'LKR 2,400', icon: '🫙' },
@@ -909,6 +1111,7 @@ function App() {
     { key: 'meditation', label: 'Meditation', value: wellness.meditation, unit: 'minutes', goal: 20, icon: '◌', color: '#b2763c' },
     { key: 'sleep', label: 'Sleep', value: wellness.sleep, unit: 'hours', goal: 8, icon: '☾', color: '#6c7e57' }
   ];
+
   return (
     <div className="app-container">
       <header className="navbar dashboard-navbar">
@@ -929,117 +1132,199 @@ function App() {
 
       <main className="dashboard-home">
         {bookingNotice && <div className="dashboard-toast"><CheckCircle2 size={17} /> {bookingNotice}</div>}
-        <section className="dashboard-hero"><div><span className="dashboard-eyebrow">TUESDAY, 25 AUGUST 2026</span><h2>Ayubowan, {name || 'friend'}.</h2><p>Small rituals, steady balance. Here is your wellness picture for today.</p></div><div className="prakriti-badge"><span>Your Prakriti</span><strong>Vata</strong><small>Air + space · balanced</small></div></section>
-        <section className="wellness-section"><div className="section-heading"><div><span className="dashboard-eyebrow">DAILY RITUALS</span><h2>How are you feeling today?</h2></div><button className="quiet-button" onClick={() => setWellness({ water: 0, meditation: 0, sleep: 0 })}>Reset day</button></div><div className="wellness-grid">{wellnessMetrics.map((metric) => <div className="wellness-card" key={metric.key}><div className="wellness-card-top"><span className="wellness-icon" style={{ color: metric.color }}>{metric.icon}</span><span className="wellness-label">{metric.label}</span><strong>{metric.value}<small> / {metric.goal}</small></strong></div><div className="progress-track"><span style={{ width: `${Math.round(metric.value / metric.goal * 100)}%`, background: metric.color }} /></div><div className="wellness-card-bottom"><span>{metric.unit}</span><div><button onClick={() => updateWellness(metric.key, -1, metric.goal)} aria-label={`Decrease ${metric.label}`}>−</button><button onClick={() => updateWellness(metric.key, 1, metric.goal)} aria-label={`Increase ${metric.label}`}>+</button></div></div></div>)}</div></section>
-        <section className="dashboard-panel category-panel"><div className="section-heading"><div><span className="dashboard-eyebrow">EXPLORE</span><h2>Rooted in nature</h2></div><button className="text-link" onClick={() => setView('upload-herbs')}>View all <ArrowLeft size={14} /></button></div><div className="category-list"><button onClick={() => setView('upload-herbs')}><span>🌿</span><div><strong>Medicinal plants</strong><small>Discover the wisdom of the garden</small></div><ArrowLeft size={17} /></button><button onClick={() => setView('shop')}><span>🫙</span><div><strong>Herbal oils</strong><small>Restore, soothe, and nourish</small></div><ArrowLeft size={17} /></button><button onClick={() => setView('prakriti')}><span>☼</span><div><strong>Prakriti assessment</strong><small>Understand your natural patterns</small></div><ArrowLeft size={17} /></button></div></section>
-        <section className="dashboard-panel shop-preview"><div className="section-heading"><div><span className="dashboard-eyebrow">AYURMART</span><h2>Daily essentials</h2></div><button className="text-link" onClick={() => setView('shop')}>Shop all <ArrowLeft size={14} /></button></div><div className="dashboard-products">{dashboardProducts.map((product) => <div className="dashboard-product" key={product.id}><span className="product-art">{product.icon}</span><small>{product.type}</small><strong>{product.name}</strong><div><b>{product.price}</b><button onClick={() => addToCart(product)} aria-label={`Add ${product.name} to cart`}>+</button></div></div>)}</div></section>
-        <section className="dashboard-focus"><div><span className="dashboard-eyebrow">YOUR HEALTH COMPANION</span><h2>Ready to listen to your body?</h2><p>Use a structured check-in, then share the result with a registered doctor.</p></div><button onClick={() => setView('questionnaire')}>Start check-in <ArrowLeft size={16} /></button></section>
-        <div className="legacy-dashboard-tools">
-        <div className="welcome-banner" style={{ background: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)', color: 'white', padding: '30px', marginBottom: '35px' }}>
-          <h2 style={{ margin: '0 0 10px 0', fontSize: '28px', fontWeight: 'bold' }}>Ayubowan! Welcome to AyurGuard</h2>
-          <p style={{ margin: 0, fontSize: '16px', color: '#e8f5e9' }}>Your Personal AI-Powered Ayurvedic Clinical Assistant. Check your health conditions instantly.</p>
-        </div>
-
-        <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
-          <div className="ai-launch-card" onClick={() => setView('ai-assistant')} role="button" tabIndex="0" onKeyDown={(e) => e.key === 'Enter' && setView('ai-assistant')}>
-            <div className="ai-launch-icon"><Bot size={28} /></div>
-            <div>
-              <h3>Ask the AI Assistant</h3>
-              <p>Have a quick question before starting a full symptom analysis.</p>
-            </div>
-            <ArrowLeft size={18} className="ai-launch-arrow" />
+        <section className="dashboard-hero">
+          <div>
+            <span className="dashboard-eyebrow">TUESDAY, 25 AUGUST 2026</span>
+            <h2>Ayubowan, {name || 'friend'}.</h2>
+            <p>Small rituals, steady balance. Here is your wellness picture for today.</p>
           </div>
-          
-          {/* Diagnostic Input Panel */}
-          <div className="diag-card" style={{ background: 'white', padding: '30px' }}>
-            <h3 style={{ margin: '0 0 20px 0', color: '#1b5e20', fontSize: '20px', fontWeight: 'bold', borderBottom: '2px solid #e8f5e9', paddingBottom: '10px' }}>
-              🔬 Enter Symptoms for Analysis
-            </h3>
+          <div className="prakriti-badge"><span>Your Prakriti</span><strong>Vata</strong><small>Air + space · balanced</small></div>
+        </section>
+
+        <section className="wellness-section">
+          <div className="section-heading">
+            <div><span className="dashboard-eyebrow">DAILY RITUALS</span><h2>How are you feeling today?</h2></div>
+            <button className="quiet-button" onClick={() => setWellness({ water: 0, meditation: 0, sleep: 0 })}>Reset day</button>
+          </div>
+          <div className="wellness-grid">
+            {wellnessMetrics.map((metric) => (
+              <div className="wellness-card" key={metric.key}>
+                <div className="wellness-card-top">
+                  <span className="wellness-icon" style={{ color: metric.color }}>{metric.icon}</span>
+                  <span className="wellness-label">{metric.label}</span>
+                  <strong>{metric.value}<small> / {metric.goal}</small></strong>
+                </div>
+                <div className="progress-track"><span style={{ width: `${Math.round(metric.value / metric.goal * 100)}%`, background: metric.color }} /></div>
+                <div className="wellness-card-bottom">
+                  <span>{metric.unit}</span>
+                  <div>
+                    <button onClick={() => updateWellness(metric.key, -1, metric.goal)} aria-label={`Decrease ${metric.label}`}>−</button>
+                    <button onClick={() => updateWellness(metric.key, 1, metric.goal)} aria-label={`Increase ${metric.label}`}>+</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="dashboard-panel category-panel">
+          <div className="section-heading">
+            <div><span className="dashboard-eyebrow">EXPLORE</span><h2>Rooted in nature</h2></div>
+            <button className="text-link" onClick={() => setView('upload-herbs')}>View all <ArrowLeft size={14} /></button>
+          </div>
+          <div className="category-list">
+            <button onClick={() => setView('upload-herbs')}><span>🌿</span><div><strong>Medicinal plants</strong><small>Discover the wisdom of the garden</small></div><ArrowLeft size={17} /></button>
+            <button onClick={() => setView('shop')}><span>🫙</span><div><strong>Herbal oils</strong><small>Restore, soothe, and nourish</small></div><ArrowLeft size={17} /></button>
+            <button onClick={() => setView('prakriti')}><span>☼</span><div><strong>Prakriti assessment</strong><small>Understand your natural patterns</small></div><ArrowLeft size={17} /></button>
+          </div>
+        </section>
+
+        <section className="dashboard-panel shop-preview">
+          <div className="section-heading">
+            <div><span className="dashboard-eyebrow">AYURMART</span><h2>Daily essentials</h2></div>
+            <button className="text-link" onClick={() => setView('shop')}>Shop all <ArrowLeft size={14} /></button>
+          </div>
+          <div className="dashboard-products">
+            {dashboardProducts.map((product) => (
+              <div className="dashboard-product" key={product.id}>
+                <span className="product-art">{product.icon}</span>
+                <small>{product.type}</small>
+                <strong>{product.name}</strong>
+                <div><b>{product.price}</b><button onClick={() => addToCart(product)} aria-label={`Add ${product.name} to cart`}>+</button></div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="dashboard-focus">
+          <div><span className="dashboard-eyebrow">YOUR HEALTH COMPANION</span><h2>Ready to listen to your body?</h2><p>Use a structured check-in, then share the result with a registered doctor.</p></div>
+          <button onClick={() => setView('questionnaire')}>Start check-in <ArrowLeft size={16} /></button>
+        </section>
+
+        <div className="legacy-dashboard-tools">
+          <div className="welcome-banner" style={{ background: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)', color: 'white', padding: '30px', marginBottom: '35px' }}>
+            <h2 style={{ margin: '0 0 10px 0', fontSize: '28px', fontWeight: 'bold' }}>Ayubowan! Welcome to AyurGuard</h2>
+            <p style={{ margin: 0, fontSize: '16px', color: '#e8f5e9' }}>Your Personal AI-Powered Ayurvedic Clinical Assistant. Check your health conditions instantly.</p>
+          </div>
+
+          <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
+            <div className="ai-launch-card" onClick={() => setView('chat')} role="button" tabIndex="0" onKeyDown={(e) => e.key === 'Enter' && setView('chat')}>
+              <div className="ai-launch-icon"><Bot size={28} /></div>
+              <div>
+                <h3>Ask the AI Assistant</h3>
+                <p>Have a quick question before starting a full symptom analysis.</p>
+              </div>
+              <ArrowLeft size={18} className="ai-launch-arrow" />
+            </div>
             
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333', fontSize: '14px' }}>Describe Symptoms (Type in Sinhala/English):</label>
-              <textarea 
-                rows="4"
-                placeholder="உදාහරණ: මට දින කිහිපයක සිට බඩේ දැවිල්ල සහ හිසරදය පවතී..."
-                value={symptomText}
-                onChange={(e) => setSymptomText(e.target.value)}
-                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '14px', resize: 'vertical', outline: 'none' }}
-              />
+            <div className="diag-card" style={{ background: 'white', padding: '30px' }}>
+              <h3 style={{ margin: '0 0 20px 0', color: '#1b5e20', fontSize: '20px', fontWeight: 'bold', borderBottom: '2px solid #e8f5e9', paddingBottom: '10px' }}>
+                🔬 Enter Symptoms for Analysis
+              </h3>
+              
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333', fontSize: '14px' }}>Describe Symptoms (Type in Sinhala/English):</label>
+                <textarea 
+                  rows="4"
+                  placeholder="උදාහරණ: මට දින කිහිපයක සිට බඩේ දැවිල්ල සහ හිසරදය පවතී..."
+                  value={symptomText}
+                  onChange={(e) => setSymptomText(e.target.value)}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '14px', resize: 'vertical', outline: 'none' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
+                <button 
+                  type="button"
+                  onClick={toggleRecording}
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', borderRadius: '8px', border: '1px solid #2e7d32', background: isRecording ? '#e8f5e9' : 'white', color: '#2e7d32', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
+                >
+                  <Mic size={16} color={isRecording ? '#e74c3c' : '#2e7d32'} /> 
+                  {isRecording ? 'Stop Listening' : 'Voice Input (Sinhala)'}
+                </button>
+
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <input 
+                    type="file" 
+                    id="file-upload" 
+                    onChange={handleFileChange} 
+                    accept="image/*"
+                    style={{ display: 'none' }} 
+                  />
+                  <label 
+                    htmlFor="file-upload" 
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', borderRadius: '8px', border: '1px dashed #7f8c8d', background: '#f8f9fa', color: '#333', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', textAlign: 'center' }}
+                  >
+                    <Upload size={16} /> {selectedFile ? 'Image Selected' : 'Upload Plant/Rash'}
+                  </label>
+                </div>
+              </div>
+
+              {selectedFile && (
+                <p style={{ margin: '-15px 0 15px 0', fontSize: '13px', color: '#27ae60', fontWeight: '500' }}>
+                  📁 Selected File: {selectedFile.name}
+                </p>
+              )}
+
+              <button 
+                onClick={handleAnalyze} 
+                disabled={loading}
+                style={{ width: '100%', background: '#2e7d32', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 10px rgba(46, 125, 50, 0.2)', transition: 'background 0.2s' }}
+              >
+                {loading ? 'Processing Data Schema...' : '🔍 Run Diagnostic Analysis'}
+              </button>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
-              <button 
-                type="button"
-                onClick={toggleRecording}
-                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', borderRadius: '8px', border: '1px solid #2e7d32', background: isRecording ? '#e8f5e9' : 'white', color: '#2e7d32', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
-              >
-                <Mic size={16} color={isRecording ? '#e74c3c' : '#2e7d32'} /> 
-                {isRecording ? 'Stop Listening' : 'Voice Input (Sinhala)'}
-              </button>
-
-              <div style={{ flex: 1, position: 'relative' }}>
-                <input 
-                  type="file" 
-                  id="file-upload" 
-                  onChange={handleFileChange} 
-                  accept="image/*"
-                  style={{ display: 'none' }} 
-                />
-                <label 
-                  htmlFor="file-upload" 
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', borderRadius: '8px', border: '1px dashed #7f8c8d', background: '#f8f9fa', color: '#333', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', textAlign: 'center' }}
-                >
-                  <Upload size={16} /> {selectedFile ? 'Image Selected' : 'Upload Plant/Rash'}
-                </label>
+            <div className="info-card" style={{ background: '#f8f9fa', padding: '30px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <h3 style={{ margin: '0', color: '#1b5e20', fontSize: '20px', fontWeight: 'bold' }}>💡 Application Guidelines</h3>
+              <p style={{ margin: 0, fontSize: '14px', color: '#555', lineHeight: '1.5' }}>
+                <strong>1. AI Analysis:</strong> You can text your daily issues or speak via Sinhala voice detection. 
+              </p>
+              <p style={{ margin: 0, fontSize: '14px', color: '#555', lineHeight: '1.5' }}>
+                <strong>2. Image Recognition:</strong> Upload clear images of traditional Sri Lankan plants or external skin variations for real-time validation checkups.
+              </p>
+              <p style={{ margin: 0, fontSize: '14px', color: '#555', lineHeight: '1.5' }}>
+                <strong>3. Certified Channels:</strong> If symptoms remain intense, use our **Find Doctors** link above to securely query and engage with registered practitioners.
+              </p>
+              <div style={{ marginTop: 'auto', background: '#e8f5e9', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #2e7d32' }}>
+                <span style={{ fontSize: '12px', color: '#1b5e20', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>🛡️ Data Verification Guard</span>
+                <p style={{ margin: 0, fontSize: '12px', color: '#555' }}>All operations are parsed safely into our MySQL relational framework to enforce transaction integrity.</p>
               </div>
             </div>
 
-            {selectedFile && (
-              <p style={{ margin: '-15px 0 15px 0', fontSize: '13px', color: '#27ae60', fontWeight: '500' }}>
-                📁 Selected File: {selectedFile.name}
-              </p>
-            )}
-
-            <button 
-              onClick={handleAnalyze} 
-              disabled={loading}
-              style={{ width: '100%', background: '#2e7d32', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 10px rgba(46, 125, 50, 0.2)', transition: 'background 0.2s' }}
-            >
-              {loading ? 'Processing Data Schema...' : '🔍 Run Diagnostic Analysis'}
-            </button>
           </div>
-
-          {/* Guidelines / Education Panel */}
-          <div className="info-card" style={{ background: '#f8f9fa', padding: '30px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <h3 style={{ margin: '0', color: '#1b5e20', fontSize: '20px', fontWeight: 'bold' }}>💡 Application Guidelines</h3>
-            <p style={{ margin: 0, fontSize: '14px', color: '#555', lineHeight: '1.5' }}>
-              <strong>1. AI Analysis:</strong> You can text your daily issues or speak via Sinhala voice detection. 
-            </p>
-            <p style={{ margin: 0, fontSize: '14px', color: '#555', lineHeight: '1.5' }}>
-              <strong>2. Image Recognition:</strong> Upload clear images of traditional Sri Lankan plants or external skin variations for real-time validation checkups.
-            </p>
-            <p style={{ margin: 0, fontSize: '14px', color: '#555', lineHeight: '1.5' }}>
-              <strong>3. Certified Channels:</strong> If symptoms remain intense, use our **Find Doctors** link above to securely query and engage with registered practitioners.
-            </p>
-            <div style={{ marginTop: 'auto', background: '#e8f5e9', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #2e7d32' }}>
-              <span style={{ fontSize: '12px', color: '#1b5e20', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>🛡️ Data Verification Guard</span>
-              <p style={{ margin: 0, fontSize: '12px', color: '#555' }}>All operations are parsed safely into our MySQL relational framework to enforce transaction integrity.</p>
-            </div>
-          </div>
-
-        </div>
         </div>
       </main>
+
       <CartDrawer cart={cart} setCart={setCart} open={cartOpen} onClose={() => setCartOpen(false)} onCheckout={() => { setCartOpen(false); setView('cart-page'); }} />
-      {bookingDoctor && <div className="calendar-overlay" role="dialog" aria-modal="true" aria-label="Book an appointment"><button className="cart-scrim" onClick={() => setBookingDoctor(null)} aria-label="Close booking calendar" /><div className="calendar-modal"><button className="modal-close" onClick={() => setBookingDoctor(null)} aria-label="Close">×</button><span className="dashboard-eyebrow">BOOK A VISIT</span><h2>Meet with {bookingDoctor.name}</h2><p>{bookingDoctor.specialty}</p><label>Select a date<input type="date" min={new Date().toISOString().split('T')[0]} value={bookingDate} onChange={(event) => setBookingDate(event.target.value)} /></label><span className="slot-label">Available times</span><div className="time-slots">{['09:00 AM', '10:00 AM', '02:00 PM', '04:30 PM'].map((time) => <button key={time} className={bookingTime === time ? 'selected' : ''} onClick={() => setBookingTime(time)}>{time}</button>)}</div><button className="confirm-booking" disabled={!bookingDate} onClick={confirmAppointment}>Confirm appointment <ArrowLeft size={16} /></button></div></div>}
-      <nav className="bottom-nav" aria-label="Main navigation"><button className="active" onClick={() => setView('dashboard')}><span>⌂</span>Dashboard</button><button onClick={() => setView('shop')}><ShoppingCart size={18} />Shop</button><button onClick={() => setView('doctors')}><User size={18} />Appointments</button><button onClick={() => setView('profile')}><User size={18} />Profile</button></nav>
+      {bookingDoctor && (
+        <div className="calendar-overlay" role="dialog" aria-modal="true" aria-label="Book an appointment">
+          <button className="cart-scrim" onClick={() => setBookingDoctor(null)} aria-label="Close booking calendar" />
+          <div className="calendar-modal">
+            <button className="modal-close" onClick={() => setBookingDoctor(null)} aria-label="Close">×</button>
+            <span className="dashboard-eyebrow">BOOK A VISIT</span>
+            <h2>Meet with {bookingDoctor.name}</h2>
+            <p>{bookingDoctor.specialty}</p>
+            <label>Select a date<input type="date" min={new Date().toISOString().split('T')[0]} value={bookingDate} onChange={(event) => setBookingDate(event.target.value)} /></label>
+            <span className="slot-label">Available times</span>
+            <div className="time-slots">{['09:00 AM', '10:00 AM', '02:00 PM', '04:30 PM'].map((time) => <button key={time} className={bookingTime === time ? 'selected' : ''} onClick={() => setBookingTime(time)}>{time}</button>)}</div>
+            <button className="confirm-booking" disabled={!bookingDate} onClick={confirmAppointment}>Confirm appointment <ArrowLeft size={16} /></button>
+          </div>
+        </div>
+      )}
+      <nav className="bottom-nav" aria-label="Main navigation">
+        <button className="active" onClick={() => setView('dashboard')}><span>⌂</span>Dashboard</button>
+        <button onClick={() => setView('shop')}><ShoppingCart size={18} />Shop</button>
+        <button onClick={() => setView('doctors')}><User size={18} />Appointments</button>
+        <button onClick={() => setView('profile')}><User size={18} />Profile</button>
+      </nav>
       <Footer />
     </div>
   );
 }
 
 // ==========================================
-// 🌿 3. HerbsGallery Component එක
+// 🌿 HERBS GALLERY COMPONENT
 // ==========================================
 function HerbsGallery() {
   const [activeModalImage, setActiveModalImage] = useState(null);
@@ -1055,7 +1340,6 @@ function HerbsGallery() {
     { img: `aloe_vera.jpg`, title: "Aloe Vera (කෝමාරිකා)", desc: "Cooling agent that promotes deep skin hydration, hair growth, and digestion." },
     { img: `ashwagandha.jpg`, title: "Ashwagandha (අශ්වගන්ධ)", desc: "Improves vital physical strength, calms the mind, and lowers anxiety levels." },
     { img: `amala.jpg`, title: "Amala (නෙල්ලි)", desc: "Rich in Vitamin C, highly effective for boosting hair health and detoxification." },
-    
     { img: `face_therapy.jpg`, title: "Natural Face & Stress Therapy", desc: "Ayurvedic herbal facial treatments to improve skin glow and reduce mental fatigue." },
     { img: `zen_meditation.jpg`, title: "Zen Meditation & Wellness", desc: "Combining nature's tranquility with mindfulness to balance the internal Doshas." },
     { img: `traditional_spice.jpg`, title: "Traditional Spice Mix (කුළුබඩු)", desc: "Authentic Sri Lankan spices used as daily immune boosters and flavor enhancers." },
@@ -1116,7 +1400,7 @@ function HerbsGallery() {
                 alt={herb.title}
                 style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '8px', margin: '15px auto 0 auto' }}
                 onError={(e) => { 
-                  e.target.src = 'https://placehold.co/150x150?text=' + herb.title.split(' ')[0]; 
+                  e.target.src = 'https://placehold.co/150x150?text=' + encodeURIComponent(herb.title.split(' ')[0]); 
                 }}
               />
               <div style={{ padding: '15px', display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'center' }}>
