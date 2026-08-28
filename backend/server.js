@@ -30,7 +30,24 @@ console.log(twilioConfigured
 // ==========================================
 // 🛡️ MIDDLEWARE & STATIC FOLDERS
 // ==========================================
-app.use(cors());
+const allowedOrigins = [
+  'https://ayurveda-diagnosis-and-recommendati.vercel.app',
+  'https://root-of-ayurveda.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5000'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('CORS Policy Error'));
+    }
+  },
+  credentials: true
+}));
 app.use(bodyParser.json());
 app.use(express.json());
 
